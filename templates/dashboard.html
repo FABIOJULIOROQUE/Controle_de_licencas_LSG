@@ -1,78 +1,51 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>Dashboard - Minhas Licenças</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
 <div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Licenças Disponíveis</h2>
+        <a href="{{ url_for('export_licencas') }}" class="btn btn-success">📥 Exportar Excel</a>
+    </div>
 
-  <h1 class="mb-4">Minhas Licenças</h1>
+    <div class="mb-3">
+    <a href="{{ url_for('change_password') }}" class="btn btn-warning">🔑 Trocar Senha</a>
+    </div>
 
-  <!-- Flash messages -->
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      {% endfor %}
+
+    {% if licencas %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>User ID</th>
+                    <th>Responsável</th>
+                    <th>Setor</th>
+                    <th>Representante</th>
+                    <th>Cidade</th>
+                    <th>Estado</th>
+                    <th>Tipo</th>
+                    <th>Código Manutenção</th>
+                    <th>Nome do Computador</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for licenca in licencas %}
+                <tr>
+                    <td>{{ licenca.user_id }}</td>
+                    <td>{{ licenca.responsavel }}</td>
+                    <td>{{ licenca.setor }}</td>
+                    <td>{{ licenca.representante }}</td>
+                    <td>{{ licenca.cidade }}</td>
+                    <td>{{ licenca.estado }}</td>
+                    <td>{{ licenca.tipo }}</td>
+                    <td>{{ licenca.codigo_manutencao }}</td>
+                    <td>{{ licenca.nome_computador }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-warning">Nenhuma licença encontrada.</div>
     {% endif %}
-  {% endwith %}
-
-  <!-- Menu -->
-  <div class="mb-3">
-    <a href="{{ url_for('account') }}" class="btn btn-secondary btn-sm">Minha Conta / Trocar Senha</a>
-    <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Sair</a>
-  </div>
-
-  <!-- Licenças -->
-  {% if licencas|length == 0 %}
-    <div class="alert alert-info">Nenhuma licença encontrada.</div>
-  {% else %}
-  <div class="table-responsive">
-    <table class="table table-striped table-bordered">
-      <thead class="table-dark">
-        <tr>
-          <th>ID</th>
-          <th>User ID</th>
-          <th>Responsável</th>
-          <th>Representante</th>
-          <th>Estado</th>
-          <th>Tipo</th>
-          <th>Cód. Licença</th>
-          <th>Cód. Manutenção</th>
-          <th>Licença</th>
-          <th>Descrição</th>
-          <th>Novo Código</th>
-          <th>Data Import</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for l in licencas %}
-        <tr>
-          <td>{{ l.id }}</td>
-          <td>{{ l.user_id }}</td>
-          <td>{{ l.responsavel }}</td>
-          <td>{{ l.representante }}</td>
-          <td>{{ l.estado }}</td>
-          <td>{{ l.tipo }}</td>
-          <td>{{ l.codigo_licenca }}</td>
-          <td>{{ l.codigo_manutencao }}</td>
-          <td>{{ l.licenca }}</td>
-          <td>{{ l.descricao }}</td>
-          <td>{{ l.novo_codigo }}</td>
-          <td>{{ l.data_import }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% endif %}
-
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% endblock %}

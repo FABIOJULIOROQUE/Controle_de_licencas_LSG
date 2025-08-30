@@ -1,37 +1,57 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
-  <h2>Administração</h2>
+    <h2>Painel Admin - Licenças</h2>
 
-  <div class="mb-3">
-    <a href="{{ url_for('admin_users') }}" class="btn btn-primary">Gerenciar Usuários</a>
-    <a href="{{ url_for('admin') }}" class="btn btn-secondary">Licenças Recentes</a>
-  </div>
+    <div class="mb-3">
+        <a href="{{ url_for('export_licencas') }}" class="btn btn-success">📥 Exportar Licenças</a>
+        <a href="{{ url_for('admin_users') }}" class="btn btn-primary">👥 Gerenciar Usuários</a>
+        <a href="{{ url_for('admin_logs') }}" class="btn btn-dark">📜 Ver Logs</a>
+    </div>
 
-  <h4>Últimas Licenças Importadas</h4>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Responsável</th>
-        <th>Representante</th>
-        <th>Estado</th>
-        <th>Tipo</th>
-        <th>Código Licença</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for l in licencas %}
-      <tr>
-        <td>{{ l.id }}</td>
-        <td>{{ l.responsavel }}</td>
-        <td>{{ l.representante }}</td>
-        <td>{{ l.estado }}</td>
-        <td>{{ l.tipo }}</td>
-        <td>{{ l.codigo_licenca }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <!-- Formulário de Upload -->
+    <form action="{{ url_for('upload_excel') }}" method="post" enctype="multipart/form-data" class="mb-3">
+        <div class="input-group">
+            <input type="file" name="file" class="form-control" accept=".xlsx" required>
+            <button class="btn btn-warning" type="submit">📤 Carregar Excel</button>
+        </div>
+    </form>
+
+    {% if licencas %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>User ID</th>
+                    <th>Responsável</th>
+                    <th>Setor</th>
+                    <th>Representante</th>
+                    <th>Cidade</th>
+                    <th>Estado</th>
+                    <th>Tipo</th>
+                    <th>Código Manutenção</th>
+                    <th>Nome do Computador</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for licenca in licencas %}
+                <tr>
+                    <td>{{ licenca.user_id }}</td>
+                    <td>{{ licenca.responsavel }}</td>
+                    <td>{{ licenca.setor }}</td>
+                    <td>{{ licenca.representante }}</td>
+                    <td>{{ licenca.cidade }}</td>
+                    <td>{{ licenca.estado }}</td>
+                    <td>{{ licenca.tipo }}</td>
+                    <td>{{ licenca.codigo_manutencao }}</td>
+                    <td>{{ licenca.nome_computador }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-warning">Nenhuma licença encontrada.</div>
+    {% endif %}
 </div>
 {% endblock %}

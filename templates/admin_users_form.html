@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ 'Editar Usuário' if usuario else 'Criar Novo Usuário' }}</h2>
+
+    <form method="POST">
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome</label>
+            <input type="text" class="form-control" name="nome" id="nome" value="{{ usuario.nome if usuario else '' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">E-mail</label>
+            <input type="email" class="form-control" name="email" id="email" value="{{ usuario.email if usuario else '' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="senha" class="form-label">Senha</label>
+            <input type="password" class="form-control" name="senha" id="senha" {% if not usuario %}required{% endif %}>
+            {% if usuario %}
+                <small class="text-muted">Deixe em branco para não alterar.</small>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="tipo" class="form-label">Tipo</label>
+            <select name="tipo" id="tipo" class="form-select" required>
+                <option value="user" {% if usuario and usuario.tipo == 'user' %}selected{% endif %}>Usuário</option>
+                <option value="admin" {% if usuario and usuario.tipo == 'admin' %}selected{% endif %}>Admin</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="representante" class="form-label">Representante (Obrigatório)</label>
+            <select name="representante" id="representante" class="form-select" required>
+                <option value="">-- Selecione --</option>
+                {% for rep in representantes %}
+                    <option value="{{ rep }}" {% if usuario and usuario.representante == rep %}selected{% endif %}>{{ rep }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="estado" class="form-label">Estado (Opcional)</label>
+            <select name="estado" id="estado" class="form-select">
+                <option value="">-- Todos --</option>
+                {% for est in estados %}
+                    <option value="{{ est }}" {% if usuario and usuario.estado == est %}selected{% endif %}>{{ est }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="cidade" class="form-label">Cidade (Opcional)</label>
+            <select name="cidade" id="cidade" class="form-select">
+                <option value="">-- Todas --</option>
+                {% for cid in cidades %}
+                    <option value="{{ cid }}" {% if usuario and usuario.cidade == cid %}selected{% endif %}>{{ cid }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Botões -->
+        <button type="submit" class="btn btn-success">💾 Salvar</button>
+        <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">⬅ Voltar</a>
+    </form>
+
+    <hr>
+
+    <h4>Pré-visualização de Licenças</h4>
+    <div id="preview-licencas" class="table-responsive">
+        <p class="text-muted">Selecione Representante, Estado e Cidade para visualizar.</p>
+    </div>
+</div>
+{% endblock %}
