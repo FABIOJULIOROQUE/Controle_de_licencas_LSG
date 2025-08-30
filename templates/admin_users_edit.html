@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Editar Usuário</h2>
+  <form method="post">
+    <div class="mb-3">
+      <label>Nome</label>
+      <input type="text" name="nome" class="form-control" value="{{ usuario.nome }}" required>
+    </div>
+    <div class="mb-3">
+      <label>Email</label>
+      <input type="email" name="email" class="form-control" value="{{ usuario.email }}" required>
+    </div>
+    <div class="mb-3">
+      <label>Tipo</label>
+      <select name="tipo" class="form-control">
+        <option value="user" {% if usuario.tipo == "user" %}selected{% endif %}>Usuário</option>
+        <option value="admin" {% if usuario.tipo == "admin" %}selected{% endif %}>Admin</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label>Representante</label>
+      <select name="representante" class="form-control">
+        <option value="">-- Selecione --</option>
+        {% for r in representantes %}
+        <option value="{{ r }}" {% if usuario.representante == r %}selected{% endif %}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label>Estado</label>
+      <select name="estado" class="form-control">
+        <option value="">-- Selecione --</option>
+        {% for e in estados %}
+        <option value="{{ e }}" {% if usuario.estado == e %}selected{% endif %}>{{ e }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label>Cidade</label>
+      <select name="cidade" class="form-control">
+        <option value="">-- Selecione --</option>
+        {% for c in cidades %}
+        <option value="{{ c }}" {% if usuario.cidade == c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-success">Atualizar</button>
+    <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

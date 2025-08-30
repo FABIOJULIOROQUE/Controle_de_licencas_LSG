@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Administração</h2>
+
+  <div class="mb-3">
+    <a href="{{ url_for('admin_users') }}" class="btn btn-primary">Gerenciar Usuários</a>
+    <a href="{{ url_for('admin') }}" class="btn btn-secondary">Licenças Recentes</a>
+  </div>
+
+  <h4>Últimas Licenças Importadas</h4>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Responsável</th>
+        <th>Representante</th>
+        <th>Estado</th>
+        <th>Tipo</th>
+        <th>Código Licença</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for l in licencas %}
+      <tr>
+        <td>{{ l.id }}</td>
+        <td>{{ l.responsavel }}</td>
+        <td>{{ l.representante }}</td>
+        <td>{{ l.estado }}</td>
+        <td>{{ l.tipo }}</td>
+        <td>{{ l.codigo_licenca }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
