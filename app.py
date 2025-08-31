@@ -188,6 +188,13 @@ def admin_users_new():
         estado = request.form.get("estado")
         cidade = request.form.get("cidade")
 
+        # 🔒 Regra: apenas admin pode usar "Todos"
+        if session.get("user_tipo") != "admin":
+            if representante == "Todos" or estado == "Todos" or cidade == "Todos":
+                flash("❌ Apenas administradores podem definir 'Todos'.", "danger")
+                return redirect(url_for("admin_users_edit", user_id=user_id))
+
+
         if not email:
             flash("❌ O campo e-mail é obrigatório.", "danger")
             return redirect(url_for("admin_users_new"))
@@ -240,11 +247,26 @@ def admin_users_edit(user_id):
         estado = request.form.get("estado")
         cidade = request.form.get("cidade")
 
-        cur.execute("""
-            UPDATE usuarios
-            SET nome=?, email=?, tipo=?, representante=?, estado=?, cidade=?
-            WHERE id=?
-        """, (nome, email, tipo, representante, estado, cidade, user_id))
+        # 🔒 Apenas admin pode usar "Todos"
+        if session.get("user_tipo") != "admin":
+            if representante == "Todos" or estado == "Todos" or cidade == "Todos":
+                flash("❌ Apenas administradores podem definir 'Todos'.", "danger")
+                return redirect(url_for("admin_users_edit", user_id=user_id))
+
+        if request.form.get("senha"):  # Se foi digitada nova senha
+            senha_hash = generate_password_hash(request.form["senha"])
+            cur.execute("""
+                UPDATE usuarios
+                SET nome=?, email=?, tipo=?, representante=?, estado=?, cidade=?, senha=?
+                WHERE id=?
+            """, (nome, email, tipo, representante, estado, cidade, senha_hash, user_id))
+        else:
+            cur.execute("""
+                UPDATE usuarios
+                SET nome=?, email=?, tipo=?, representante=?, estado=?, cidade=?
+                WHERE id=?
+            """, (nome, email, tipo, representante, estado, cidade, user_id))
+
         con.commit()
         con.close()
 
@@ -258,10 +280,10 @@ def admin_users_edit(user_id):
                            estados=estados,
                            cidades=cidades)
 
-
 @app.route("/admin/users/delete/<int:user_id>")
 def admin_users_delete(user_id):
     if session.get("user_tipo") != "admin":
+        flash("❌ Acesso negado.", "danger")
         return redirect(url_for("login"))
 
     con = get_db()

@@ -1,49 +1,50 @@
 {% extends "base.html" %}
+
 {% block content %}
 <div class="container mt-4">
     <h2>Gerenciamento de Usuários</h2>
+
     <div class="mb-3">
-        <a href="{{ url_for('admin_users_new') }}" class="btn btn-primary">➕ Criar Novo Usuário</a>
-        <a href="{{ url_for('export_usuarios') }}" class="btn btn-success">📥 Exportar Usuários</a>
+        <a href="{{ url_for('admin_users_new') }}" class="btn btn-success">➕ Novo Usuário</a>
         <a href="{{ url_for('admin') }}" class="btn btn-secondary">⬅ Voltar</a>
     </div>
 
-    {% if usuarios %}
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Tipo</th>
-                    <th>Representante</th>
-                    <th>Estado</th>
-                    <th>Cidade</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for usuario in usuarios %}
-                <tr>
-                    <td>{{ usuario.id }}</td>
-                    <td>{{ usuario.nome }}</td>
-                    <td>{{ usuario.email }}</td>
-                    <td>{{ usuario.tipo }}</td>
-                    <td>{{ usuario.representante }}</td>
-                    <td>{{ usuario.estado }}</td>
-                    <td>{{ usuario.cidade }}</td>
-                    <td>
-                        <a href="{{ url_for('admin_users_edit', user_id=usuario.id) }}" class="btn btn-warning btn-sm">✏️ Editar</a>
-                        <a href="{{ url_for('admin_users_delete', user_id=usuario.id) }}" class="btn btn-danger btn-sm">🗑️ Excluir</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="alert alert-warning">Nenhum usuário encontrado.</div>
-    {% endif %}
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Tipo</th>
+                <th>Representante</th>
+                <th>Estado</th>
+                <th>Cidade</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario['id'] }}</td>
+                <td>{{ usuario['nome'] }}</td>
+                <td>{{ usuario['email'] }}</td>
+                <td>{{ usuario['tipo'] }}</td>
+                <td>{{ usuario['representante'] }}</td>
+                <td>{{ usuario['estado'] }}</td>
+                <td>{{ usuario['cidade'] }}</td>
+                <td>
+                    <!-- Botão Editar -->
+                    <a href="{{ url_for('admin_users_edit', user_id=usuario['id']) }}"
+                       class="btn btn-primary btn-sm">✏️ Editar</a>
+
+                    <!-- Botão Excluir -->
+                    <a href="{{ url_for('admin_users_delete', user_id=usuario['id']) }}"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Tem certeza que deseja excluir este usuário?');">🗑️ Excluir</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}
