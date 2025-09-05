@@ -427,6 +427,82 @@ def export_usuarios():
                      download_name=filename,
                      mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
+# =========================
+# Upload de Usuários em lote via Excel
+# =========================
+@app.route("/upload_usuarios_excel", methods=["POST"])
+def upload_usuarios_excel():
+    if session.get("user_tipo") != "admin":
+        return redirect(url_for("login"))
+
+    if "file" not in request.files:
+        flash("❌ Nenhum arquivo enviado.", "danger")
+        return redirect(url_for("admin_users"))
+
+    file = request.files["file"]
+
+    if file.filename == "" or not file.filename.endswith(".xlsx"):
+        flash("❌ Envie um arquivo válido .xlsx", "danger")
+        return redirect(url_for("admin_users"))
+
+    import re
+    df = pd.read_excel(file)
+
+    # 🔄 Pré-processamento: renomear colunas
+    colunas_map = {
+        "Unnamed: 1": "Tipo",
+        "Unnamed: 2": "Representante",
+        "Unnamed: 3": "Nome",
+        "Cargo": "Cargo",  # só informativo
+        "Unnamed: 5": "Email"
+    }
+    df = df.rename(columns=colunas_map)
+
+    con = get_db()
+    cur = con.cursor()
+    count = 0
+
+    for _, row in df.iterrows():
+        tipo = str(row.get("Tipo", "")).strip().lower()
+        representante = str(row.get("Representante", "")).strip()
+        nomes_raw = str(row.get("Nome", "")).strip()
+        emails_raw = str(row.get("Email", "")).strip()
+        senha_default = "123456"
+
+        # ⚠️ Regra: só cria se houver Nome e Email
+        if not nomes_raw or not emails_raw:
+            continue
+
+        # Divide múltiplos nomes/emails
+        nomes = [n.strip() for n in re.split(r"[;,]", nomes_raw) if n.strip()]
+        emails = [e.strip() for e in re.split(r"[;,]", emails_raw) if e.strip()]
+
+        for nome, email in zip(nomes, emails):
+            if not nome or not email:
+                continue
+
+            senha_hash = generate_password_hash(senha_default)
+
+            try:
+                cur.execute("""
+                    INSERT INTO usuarios (nome, email, senha, tipo, representante, estado, cidade)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (nome, email, senha_hash, tipo, representante, "", ""))
+                count += 1
+            except sqlite3.IntegrityError:
+                cur.execute("""
+                    UPDATE usuarios
+                    SET nome=?, senha=?, tipo=?, representante=?
+                    WHERE email=?
+                """, (nome, senha_hash, tipo, representante, email))
+
+    con.commit()
+    con.close()
+
+    registrar_log(session.get("user_nome"), f"Importou usuários em lote: {count}")
+    flash(f"✅ {count} usuários importados/atualizados com sucesso!", "success")
+    return redirect(url_for("admin_users"))
+
 
 # =========================
 # Upload de Nova Planilha Excel
