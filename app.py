@@ -453,8 +453,9 @@ def upload_usuarios_excel():
         "Unnamed: 1": "Tipo",
         "Unnamed: 2": "Representante",
         "Unnamed: 3": "Nome",
-        "Cargo": "Cargo",  # só informativo
-        "Unnamed: 5": "Email"
+        "Cargo": "Cargo",
+        "Unnamed: 5": "Email",
+        "Senha": "Senha"
     }
     df = df.rename(columns=colunas_map)
 
@@ -467,9 +468,8 @@ def upload_usuarios_excel():
         representante = str(row.get("Representante", "")).strip()
         nomes_raw = str(row.get("Nome", "")).strip()
         emails_raw = str(row.get("Email", "")).strip()
-        senha_default = "123456"
 
-        # ⚠️ Regra: só cria se houver Nome e Email
+        # ⚠️ Só cria se houver Nome e Email
         if not nomes_raw or not emails_raw:
             continue
 
@@ -481,20 +481,27 @@ def upload_usuarios_excel():
             if not nome or not email:
                 continue
 
-            senha_hash = generate_password_hash(senha_default)
+            # Se a planilha trouxer senha, usa; senão define "123456"
+            senha_raw = str(row.get("Senha", "")).strip()
+            if not senha_raw or senha_raw.lower() in ["nan", "none", "null"]:
+                senha_raw = "123456"
+
+            senha_hash = generate_password_hash(senha_raw)
 
             try:
+                # Inserir novo usuário
                 cur.execute("""
                     INSERT INTO usuarios (nome, email, senha, tipo, representante, estado, cidade)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 """, (nome, email, senha_hash, tipo, representante, "", ""))
                 count += 1
             except sqlite3.IntegrityError:
+                # Atualiza só os dados básicos (NÃO sobrescreve senha existente)
                 cur.execute("""
                     UPDATE usuarios
-                    SET nome=?, senha=?, tipo=?, representante=?
+                    SET nome=?, tipo=?, representante=?
                     WHERE email=?
-                """, (nome, senha_hash, tipo, representante, email))
+                """, (nome, tipo, representante, email))
 
     con.commit()
     con.close()
@@ -502,6 +509,7 @@ def upload_usuarios_excel():
     registrar_log(session.get("user_nome"), f"Importou usuários em lote: {count}")
     flash(f"✅ {count} usuários importados/atualizados com sucesso!", "success")
     return redirect(url_for("admin_users"))
+
 
 
 # =========================
